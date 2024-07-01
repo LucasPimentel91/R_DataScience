@@ -1,0 +1,101 @@
+#https://ufba.netlify.app/paginas/material
+
+# aula do dia 07/06/2024
+# pacotes
+install.packages("pacman")
+library(pacman)
+p_load(readxl, writexl, janitor, statBasics, tidyverse)
+
+# lendo os dados
+salvador <- read_xlsx("dados/brutos/salvador.xlsx")
+View(salvador)
+
+# resumo rápido 
+glimpse(salvador)
+
+# estimativa pontual
+estimativas <- salvador |>
+  summarise(
+    media_matematica = mean(nu_nota_mt),
+    mediana_linguagens_codigo = median(nu_nota_lc)
+  )
+estimativas
+
+#bernoulli
+frequencia_pessoas_na_casa <- salvador |> tabyl(q005)
+frequencia_pessoas_na_casa
+
+# binomial
+dados_adubo <- read_xlsx("dados/brutos/estudo_sementes.xlsx")
+prob_sucesso <- dados_adubo |> 
+  summarise(
+    prob_germinar = sum(germinado) / sum(numero_sementes_plantadas)
+  )
+prob_sucesso
+
+# intervalo de confiança - Bernoulli
+intervalo_treineiro <- ci_1pop_bern(salvador$in_treineiro == "Sim")
+intervalo_treineiro
+
+
+# aula do dia 14/06/2024
+
+dados_carros <- read_xlsx("dados/brutos/mtcarros.xlsx")
+
+sumario <- dados_carros |>
+  summarise(prop_transmissao = mean(transmissao))
+sumario
+
+# com 95% de coeficiente de confiança por padrão
+ic_transmissao <- ci_1pop_bern(dados_carros$transmissao)
+ic_transmissao
+
+# com 99% de coeficente de confiança para 99%
+ic_transmissao_99 <- ci_1pop_bern(dados_carros$transmissao,
+                                  conf_level = 0.99)
+ic_transmissao_99
+
+# com 90% de coeficente de confiança para 99%
+ic_transmissao_90 <- ci_1pop_bern(dados_carros$transmissao,
+                                  conf_level = 0.90)
+ic_transmissao_90
+
+# usando número de sucesso
+lula_la <- ci_1pop_bern(1514, 2912)
+lula_la
+
+genocida <- ci_1pop_bern(1398, 2912)
+genocida
+
+# quando é texto
+salvador <- read_xlsx("dados/brutos/salvador.xlsx")
+ic_genero <- ci_1pop_bern(salvador$tp_sexo == "Feminino")
+ic_genero
+
+# intervalo de confiança
+ic_media_milhas_por_galao <- ci_1pop_norm(dados_carros$milhas_por_galao,
+                                          conf_level = 0.93)
+ic_media_milhas_por_galao
+
+# hipótese
+th_milhas_galao <- ht_1pop_mean(dados_carros$milhas_por_galao,
+                                mu = 15,
+                                alternative = "greater",
+                                sig_level = 0.05)
+th_milhas_galao
+
+ic_media_milhas_por_galao <- ci_1pop_norm(dados_carros$milhas_por_galao,
+                                          conf_level = 0.95)
+ic_media_milhas_por_galao
+
+
+th_mt_maior_600 <- ht_1pop_mean(
+  salvador$nu_nota_mt,
+  mu = 600,
+  alternative = "greater",
+  sig_level = 0.01
+)
+th_mt_maior_600
+
+# shapiro.wilks
+shapiro.test(salvador$nu_nota_mt)
